@@ -18,6 +18,10 @@ static xtap oetap_state = {
   .is_press_action = true,
   .state = 0
 };
+static xtap atap_state = {
+  .is_press_action = true,
+  .state = 0
+};
 
 void oe_finished (qk_tap_dance_state_t *state, void *user_data) {
   oetap_state.state = cur_dance(state);
@@ -35,7 +39,24 @@ void oe_reset (qk_tap_dance_state_t *state, void *user_data) {
   oetap_state.state = 0;
 }
 
+void a_finished (qk_tap_dance_state_t *state, void *user_data) {
+  atap_state.state = cur_dance(state);
+  switch (atap_state.state) {
+    case SINGLE_TAP: register_code(DE_A); break;
+    case SINGLE_HOLD: register_code(DE_HASH); break;
+  }
+}
+
+void a_reset (qk_tap_dance_state_t *state, void *user_data) {
+  switch (atap_state.state) {
+    case SINGLE_TAP: unregister_code(DE_A); break;
+    case SINGLE_HOLD: unregister_code(DE_HASH); break;
+  }
+  atap_state.state = 0;
+}
+
 qk_tap_dance_action_t tap_dance_actions[] = {
-  [OE_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, oe_finished, oe_reset, 85)
+  [OE_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, oe_finished, oe_reset, 85),
+  [A_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, a_finished, a_reset, 85)
 };
 
