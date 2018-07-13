@@ -15,13 +15,13 @@ extern keymap_config_t keymap_config;
 #define NB_F RGUI_T(KC_F)
 #define NB_J RGUI_T(KC_J)
 #define NB_K LT(RALGR_LHOLD, KC_K)
-
+#define NB_AE SFT_T(DE_AE)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [BASE] = LAYOUT( \
 	KC_TILD, KC_1, KC_2, KC_3,   KC_4, KC_5,   KC_6,                             KC_7,    KC_8,   KC_9,    KC_0,   KC_MINS,   KC_NO,      KC_PAUSE, \
 	DEBUG,  KC_ESC, KC_Q, KC_W,   KC_E, KC_R,   KC_T,                             KC_Z,    KC_U,   KC_I,    KC_O,   KC_P,      DE_UE,     DE_PLUS, \
-	KC_UP,  KC_LSFT, KC_A, KC_S,   NB_D, NB_F,   KC_G,                             KC_H,    NB_J,   NB_K,    KC_L,   TD(OE_CTL),     DE_AE,    DE_HASH, \
+	KC_UP,  KC_LSFT, KC_A, KC_S,   NB_D, NB_F,   KC_G,                             KC_H,    NB_J,   NB_K,    KC_L,   TD(OE_CTL),     NB_AE,    DE_HASH, \
 	KC_DOWN, KC_NO, KC_Y, KC_X,   KC_C, KC_V,   KC_B,                             KC_N,    KC_M,   KC_COMM, KC_DOT, KC_SLSH,   KC_RSHIFT,   KC_NO, \
 	                     KC_LEFT,   KC_RIGHT,                                                            KC_PGUP,    KC_PGDOWN,                  \
 	                                   KC_SPC, KC_RCTL,                          KC_RCTL, KC_SPC,                        \
