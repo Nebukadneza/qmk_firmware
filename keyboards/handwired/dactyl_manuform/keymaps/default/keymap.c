@@ -21,8 +21,8 @@ extern keymap_config_t keymap_config;
 #define NB_J RGUI_T(KC_J)
 #define NB_K LT(RALGR_LHOLD, KC_K)
 #define NB_AE SFT_T(DE_AE)
-#define NB_A TD(A_CTL) // LT(RHASH, KC_A)
-#define NB_OE TD(OE_CTL) // LT(LHASH, DE_OE)
+#define NB_A LT(RHASH, KC_A)
+#define NB_OE LT(LHASH, DE_OE)
 
 //static uint32_t last_layer_state = 0;
 
@@ -70,7 +70,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [RHASH] = LAYOUT( \
 	____,   ____,   ____,      ____,   ____, ____,   ____,                             ____,    ____,   ____,    ____,   ____,   ____, ____, \
 	____,  ____,  ____,      ____,   ____, ____,   ____,                             ____,    ____,   ____,    ____,   ____,      ____,         ____, \
-	____,     ____, ____, ____,   ____, ____,   ____,                             ____,    ____,   ____,    ____,   KC_NO,     ____,    ____, \
+	____,     ____, ____, ____,   ____, ____,   ____,                             ____,    ____,   ____,    ____,   ____,     ____,    ____, \
 	____,   ____,  ____,      ____,   ____, ____,   ____,                             ____,    ____,   ____, ____, ____,   ____,   ____, \
 	                               ____,   ____,                                                     ____,    ____,                  \
 	                                     ____, ____,                          ____, ____,                        \
@@ -80,10 +80,32 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 /*void persistent_default_layer_set(uint16_t default_layer) {
-  eeconfig_update_default_layer(default_layer);
+  ueconfig_update_default_layer(default_layer);
   default_layer_set(default_layer);
 }*/
 
+
+uint32_t layer_state_set_user(uint32_t state) {
+	switch(biton32(state)) {
+		case BASE:
+			layerkc1 = KC_NO;
+			hasregistered = false;
+			break;
+		case RHASH:
+		case LHASH:
+			layerkc1 = DE_HASH;
+			hasregistered = false;
+			break;
+	}
+	return state;
+}
+
+void matrix_scan_user(void) {
+	if(!hasregistered) {
+		register_code(layerkc1);
+		hasregistered=true;
+	}
+}
 
 /*
 uint32_t layer_state_set_user(uint32_t state) {

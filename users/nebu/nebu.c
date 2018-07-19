@@ -56,7 +56,7 @@ void a_reset (qk_tap_dance_state_t *state, void *user_data) {
 }
 
 qk_tap_dance_action_t tap_dance_actions[] = {
-  [OE_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, oe_finished, oe_reset, 85),
-  [A_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, a_finished, a_reset, 85)
+  [OE_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, oe_finished, oe_reset, 78),
+  [A_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, a_finished, a_reset, 78)
 };
 

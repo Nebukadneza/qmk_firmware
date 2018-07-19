@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "pro_micro.h"
 #include "config.h"
 #include "timer.h"
-
+#include "dactyl_manuform.h"
 #ifdef USE_I2C
 #  include "i2c.h"
 #else // USE_SERIAL
@@ -95,10 +95,19 @@ void matrix_scan_kb(void) {
 
 __attribute__ ((weak))
 void matrix_init_user(void) {
+	if(!hasregistered) {
+		register_code(layerkc1);
+		hasregistered = true;
+	}
 }
 
 __attribute__ ((weak))
 void matrix_scan_user(void) {
+	if(!hasregistered) {
+		print("found kc, sending\n");
+		register_code(layerkc1);
+		hasregistered=true;
+	}
 }
 
 inline

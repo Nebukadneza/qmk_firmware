@@ -15,6 +15,10 @@
 #endif
 #endif
 
+
+volatile static uint16_t layerkc1 = KC_NO;
+volatile static bool hasregistered=false;
+
 //void promicro_bootloader_jmp(bool program);
 
 #define LAYOUT( \
