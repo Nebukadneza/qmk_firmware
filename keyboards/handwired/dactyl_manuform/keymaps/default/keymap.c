@@ -40,7 +40,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [BASE] = LAYOUT( \
 	LT(FX, KC_TILD),   KC_1,   KC_2,      KC_3,   KC_4, KC_5,   KC_6,                        KC_7,    KC_8,   KC_9,    KC_0,   KC_MINS,   DE_ACUT,       LT(FX, KC_PAUSE), \
 	       KC_PSCR,   KC_ESC,  KC_Q,      KC_W,   KC_E, KC_R,   KC_T,                         KC_Y,    KC_U,   KC_I,    KC_O,   KC_P,      DE_UE,         DE_PLUS, \
-	       KC_UP,     KC_LSFT, CS_A,     NB_S,   NB_D, NB_F,   KC_G,                             KC_H,    NB_J,   NB_K,    NB_L,   NB_OE,     NB_AE,    DE_HASH, \
+	       KC_UP,     KC_LSFT, CS_A,     NB_S,   NB_D, NB_F,   KC_G,                             KC_H,    NB_J,   NB_K,    NB_L,   CS_OE,     NB_AE,    DE_HASH, \
 	       KC_DOWN,   DE_HASH,  KC_Z,      KC_X,   KC_C, KC_V,   KC_B,                       KC_N,    KC_M,   KC_COMM, KC_DOT, KC_SLSH,   KC_RSHIFT,   KC_SLCK, \
 	                                      KC_LEFT,   KC_RIGHT,                                     KC_PGUP,    KC_PGDOWN,                  \
 	                                            KC_SPC, KC_RCTL,                          KC_RCTL, KC_SPC,                        \
@@ -50,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [RALGR_LHOLD] = LAYOUT( \
 	RALT(KC_TILD),  RALT(KC_1),    RALT(KC_2), RALT(KC_3),   RALT(KC_4), RALT(KC_5),   RALT(KC_6),                             KC_7,    KC_8,   KC_9,    KC_0,   KC_MINS,   KC_2,   KC_PAUSE, \
 	RALT(KC_PSCR),  RALT(KC_ESC),  RALT(KC_Q), RALT(KC_W),   RALT(KC_E), RALT(KC_R),   RALT(KC_T),                             KC_Y,    KC_U,   KC_I,    KC_O,   KC_P,      DE_UE,  DE_PLUS, \
-	RALT(KC_UP),    RALT(KC_LSFT), RALT(KC_A), RALT(KC_S),   RALT(KC_D), RALT(KC_F),   RALT(KC_G),                             KC_H,    NB_J,   NB_K,    KC_L,   DE_OE,     DE_AE,  DE_HASH, \
+	RALT(KC_UP),    RALT(KC_LSFT), RALT(KC_A), RALT(KC_S),   RALT(KC_D), RALT(KC_F),   RALT(KC_G),                             KC_H,    NB_J,   NB_K,    KC_L,   CS_OE,     DE_AE,  DE_HASH, \
 	RALT(KC_DOWN),  RALT(KC_HASH), RALT(KC_Z), RALT(KC_X),   RALT(KC_C), RALT(KC_V),   RALT(KC_B),                             KC_N,    KC_M,   KC_COMM, KC_DOT, KC_SLSH,   KC_9,   KC_SLCK, \
 	                     RALT(KC_LEFT),   RALT(KC_RIGHT),                                                                                          KC_PGUP,    KC_PGDOWN,                  \
 	                             KC_SPC, KC_RCTL,                                                                     KC_RCTL, KC_SPC,                        \
@@ -90,9 +90,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 
-static uint16_t a_timer;
+static uint16_t hash_timer;
 bool a_pressed = false;
-bool a_registered = false;
+bool oe_pressed = false;
+bool hash_registered = false;
 bool masked = false;
 uint16_t masked_keycode = 0;
 #define STOP false
@@ -103,19 +104,39 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 			if(record->event.pressed) {
 				print("pressed CS_A\n");
 				a_pressed = true;
-				a_timer = timer_read();
+				hash_timer = timer_read();
 				return STOP;
 			} else { // released
 				print("released CS_A ");
 				a_pressed = false;
-				if(timer_elapsed(a_timer) <= TAPPING_TERM) { // regular tap, no hold
+				if(timer_elapsed(hash_timer) <= TAPPING_TERM) { // regular tap, no hold
 					print("below TAPPING_TERM ");
 					register_code(KC_A);
 					unregister_code(KC_A);
 				}
 				print("unregistering DE_HASH\n");
 				unregister_code(DE_HASH); // unregisters too often, probably doesn’t matter?
-				a_registered = false;
+				hash_registered = false;
+				return STOP;
+			}
+			break;
+		case CS_OE:
+			if(record->event.pressed) {
+				print("pressed CS_OE\n");
+				oe_pressed = true;
+				hash_timer = timer_read();
+				return STOP;
+			} else { // released
+				print("released CS_OE ");
+				oe_pressed = false;
+				if(timer_elapsed(hash_timer) <= TAPPING_TERM) { // regular tap, no hold
+					print("below TAPPING_TERM ");
+					register_code(DE_OE);
+					unregister_code(DE_OE);
+				}
+				print("unregistering DE_HASH\n");
+				unregister_code(DE_HASH); // unregisters too often, probably doesn’t matter?
+				hash_registered = false;
 				return STOP;
 			}
 			break;
@@ -123,9 +144,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 			if(record->event.pressed) {
 				xprintf("pressed %d ", keycode);
 				if(masked) {
-					if(a_pressed) {
+					if(a_pressed || oe_pressed) {
 						register_code(DE_HASH);
-						a_registered = true;
+						hash_registered = true;
 						register_code(masked_keycode);
 						masked = false;
 						masked_keycode = 0;
@@ -135,12 +156,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 						masked_keycode = 0;
 					}
 				}
-				if(a_pressed && timer_elapsed(a_timer) <= TAPPING_TERM) {
+				if((a_pressed || oe_pressed) && timer_elapsed(hash_timer) <= TAPPING_TERM) {
 					print(" masking\n");
 					masked = true;
 					masked_keycode = keycode;
 					return STOP;
-				} else if(a_pressed && timer_elapsed(a_timer) > TAPPING_TERM) {
+				} else if((a_pressed  || oe_pressed )&& timer_elapsed(hash_timer) > TAPPING_TERM) {
 					if(masked) {
 						register_code(masked_keycode);
 						masked = false;
@@ -148,7 +169,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 					}
 					print(" with DE_HASH\n");
 					register_code(DE_HASH);
-					a_registered = true;
+					hash_registered = true;
 					return CONT;
 				} else { // regular press
 					print(" regular\n");
@@ -156,10 +177,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 				}
 			} else { // release
 				xprintf("released %d ", keycode);
-				if(a_pressed && timer_elapsed(a_timer) > TAPPING_TERM) {
+				if((a_pressed || oe_pressed) && timer_elapsed(hash_timer) > TAPPING_TERM) {
 					print(" and registering DE_HASH ");
 					register_code(DE_HASH);
-					a_registered = true;
+					hash_registered = true;
 				}
 
 				if(masked) {
@@ -177,9 +198,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void matrix_scan_user(void) {
-	if(a_pressed && !a_registered && timer_elapsed(a_timer) > TAPPING_TERM) {
+	if((a_pressed || oe_pressed) && !hash_registered && timer_elapsed(hash_timer) > TAPPING_TERM) {
 		print("matrixscan, registering DE_HASH\n");
-		a_registered = true;
+		hash_registered = true;
 		register_code(DE_HASH);
 	}
 }
