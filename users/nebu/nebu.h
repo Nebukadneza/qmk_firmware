@@ -1,7 +1,7 @@
 #ifndef NEBU
 #define NEBU
 
-#include "process_keycode/process_tap_dance.h"
+/*#include "process_keycode/process_tap_dance.h"
 #include "quantum.h"
 
 typedef struct {
@@ -25,5 +25,7 @@ enum {
 	OE_CTL = 0,
 	A_CTL
 };
+
+*/
 
 #endif

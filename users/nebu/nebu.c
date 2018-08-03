@@ -1,3 +1,4 @@
+/*
 #include "quantum.h"
 #include "action.h"
 #include "process_keycode/process_tap_dance.h"
@@ -59,4 +60,4 @@ qk_tap_dance_action_t tap_dance_actions[] = {
   [OE_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, oe_finished, oe_reset, 78),
   [A_CTL]     = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, a_finished, a_reset, 78)
 };
-
+*/

@@ -56,20 +56,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MOUSEKEY_WHEEL_DELAY 0
 
 /* Set 0 if debouncing isn't needed */
-#define DEBOUNCING_DELAY 5
+#define DEBOUNCING_DELAY 2
 
 /* Mechanical locking support. Use KC_LCAP, KC_LNUM or KC_LSCR instead in keymap */
-#define LOCKING_SUPPORT_ENABLE
+//#define LOCKING_SUPPORT_ENABLE
 /* Locking resynchronize hack */
-#define LOCKING_RESYNC_ENABLE
+//#define LOCKING_RESYNC_ENABLE
 
 /* key combination for command */
 #define IS_COMMAND() ( \
     keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) \
 )
-
-/* Enables This makes it easier for fast typists to use dual-function keys */
-#define PERMISSIVE_HOLD
 
 /* ws2812 RGB LED */
 #define RGB_DI_PIN D3
@@ -84,10 +81,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* disable debug print */
-// #define NO_DEBUG
+#ifndef NO_DEBUG
+#define NO_DEBUG
+#endif
 
 /* disable print */
-// #define NO_PRINT
+#ifndef NO_PRINT
+#define NO_PRINT
+#endif
 
 /* disable action features */
 //#define NO_ACTION_LAYER
@@ -96,8 +97,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define NO_ACTION_MACRO
 //#define NO_ACTION_FUNCTION
 #define TAPPING_TERM 80
-#define PERMISSIVE_HOLD
-#define IGNORE_MOD_TAP_INTERRUPT
+//#define PERMISSIVE_HOLD
+//#define IGNORE_MOD_TAP_INTERRUPT
 
 
 #endif
