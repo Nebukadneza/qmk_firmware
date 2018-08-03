@@ -90,119 +90,216 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 
-static uint16_t hash_timer;
-bool a_pressed = false;
+
+
+bool oe_hash = false;
 bool oe_pressed = false;
-bool hash_registered = false;
-bool masked = false;
-uint16_t masked_keycode = 0;
+uint16_t oe_masking_code = 0;
+uint16_t oe_timer = 0;
+
+bool a_hash = false;
+bool a_pressed = false;
+uint16_t a_masking_code = 0;
+uint16_t a_timer = 0;
+
 #define STOP false
 #define CONT true
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-	switch (keycode) {
-		case CS_A:
-			if(record->event.pressed) {
-				print("pressed CS_A\n");
-				a_pressed = true;
-				hash_timer = timer_read();
-				return STOP;
-			} else { // released
-				print("released CS_A ");
-				a_pressed = false;
-				if(timer_elapsed(hash_timer) <= TAPPING_TERM) { // regular tap, no hold
-					print("below TAPPING_TERM ");
-					register_code(KC_A);
-					unregister_code(KC_A);
-				}
-				print("unregistering DE_HASH\n");
-				unregister_code(DE_HASH); // unregisters too often, probably doesn’t matter?
-				hash_registered = false;
-				return STOP;
-			}
-			break;
-		case CS_OE:
-			if(record->event.pressed) {
-				print("pressed CS_OE\n");
-				oe_pressed = true;
-				hash_timer = timer_read();
-				return STOP;
-			} else { // released
-				print("released CS_OE ");
-				oe_pressed = false;
-				if(timer_elapsed(hash_timer) <= TAPPING_TERM) { // regular tap, no hold
-					print("below TAPPING_TERM ");
-					register_code(DE_OE);
-					unregister_code(DE_OE);
-				}
-				print("unregistering DE_HASH\n");
-				unregister_code(DE_HASH); // unregisters too often, probably doesn’t matter?
-				hash_registered = false;
-				return STOP;
-			}
-			break;
-		default:
-			if(record->event.pressed) {
-				xprintf("pressed %d ", keycode);
-				if(masked) {
-					if(a_pressed || oe_pressed) {
-						register_code(DE_HASH);
-						hash_registered = true;
-						register_code(masked_keycode);
-						masked = false;
-						masked_keycode = 0;
-					} else {
-						register_code(masked_keycode);
-						masked = false;
-						masked_keycode = 0;
-					}
-				}
-				if((a_pressed || oe_pressed) && timer_elapsed(hash_timer) <= TAPPING_TERM) {
-					print(" masking\n");
-					masked = true;
-					masked_keycode = keycode;
-					return STOP;
-				} else if((a_pressed  || oe_pressed )&& timer_elapsed(hash_timer) > TAPPING_TERM) {
-					if(masked) {
-						register_code(masked_keycode);
-						masked = false;
-						masked_keycode = 0;
-					}
-					print(" with DE_HASH\n");
-					register_code(DE_HASH);
-					hash_registered = true;
-					return CONT;
-				} else { // regular press
-					print(" regular\n");
-					return CONT;
-				}
-			} else { // release
-				xprintf("released %d ", keycode);
-				if((a_pressed || oe_pressed) && timer_elapsed(hash_timer) > TAPPING_TERM) {
-					print(" and registering DE_HASH ");
-					register_code(DE_HASH);
-					hash_registered = true;
-				}
 
-				if(masked) {
-					xprintf(" and had masked %d ", keycode);
-					register_code(masked_keycode);
-					masked = false;
-					masked_keycode = 0;
-				}
-				print("\n");
+bool process_a(uint16_t keycode, keyrecord_t *record) {
+	uint16_t elapsed = timer_elapsed(a_timer);
+	if(keycode == CS_A) {
+		if(record->event.pressed) {
+			xprintf("pressed CS_A, a_hash: %d, a_pressed: %d, a_masking_code: %d\n\t", a_hash, a_pressed, a_masking_code);
+			if(oe_pressed) { // be a normal key in case oe is mod
+				print(" / but oe is hash already, registering KC_A => STOP\n");
+				register_code(KC_A);
+				return STOP;
+			}
+			// no other mod-hold yet
+			print(" / and saved timer => STOP\n");
+			a_timer = timer_read();
+			a_pressed = true;
+			return STOP;
+		} else { // released
+			xprintf("release CS_A, a_hash: %d, a_pressed: %d, a_masking_code: %d\n\t", a_hash, a_pressed, a_masking_code);
+			if(oe_hash) {
+				print(" / but oe is hash, release normally => STOP\n");
+				unregister_code(KC_A);
+				return STOP;
+			}
+			if(a_hash) {
+				print(" / and unregister DE_HASH");
+				unregister_code(DE_HASH);
+				a_hash = false;
+			}
+			if(elapsed < TAPPING_TERM) {
+				print(" / and tap KC_A");
+				register_code(KC_A);
+				unregister_code(KC_A);
+			}
+			print(" / and unpress => STOP\n");
+			a_pressed = false;
+			return STOP;
+		}
+	} else {
+		if(record->event.pressed) {
+			xprintf("pressed %d, a_hash: %d, a_pressed: %d, a_masking_code: %d\n\t", keycode, a_hash, a_pressed, a_masking_code);
+			if(a_pressed && !a_masking_code && elapsed >= TAPPING_TERM) {
+				print(" / and registering DE_HASH => CONT\n");
+				a_hash = true;
+				register_code(DE_HASH);
+				return CONT;
+			} else if(a_pressed && a_masking_code == 0) {
+				print(" / and masking key => STOP\n");
+				a_masking_code = keycode;
+				return STOP;
+			} else if(a_pressed && a_masking_code != keycode) {
+				print(" / and 2nd tap after mask, registering DE_HASH and masked => CONT\n");
+				register_code(DE_HASH);
+				a_hash = true;
+				register_code(a_masking_code);
+				a_masking_code = 0;
+			} else {
+				print(" / is regular press\n");
 				return CONT;
 			}
-			break;
+		} else { // released
+			xprintf("released %d, a_hash: %d, a_pressed: %d, a_masking_code: %d\n\t", keycode, a_hash, a_pressed, a_masking_code);
+			if(a_pressed && a_masking_code == 0 && elapsed >= TAPPING_TERM) {
+				print(" / had hold while tapping ... confused => CONT\n");
+				register_code(DE_HASH);
+				a_hash = true;
+				return CONT;
+			} else if(a_pressed && a_masking_code == keycode) {
+				print(" / released masked key, pressing DE_HASH and key => CONT\n");
+				register_code(DE_HASH);
+				register_code(keycode);
+				a_masking_code = 0;
+				return CONT;
+			} else if(!a_pressed && a_masking_code != 0) {
+				print(" / unmasking and => CONT\n");
+				register_code(keycode);
+				return CONT;
+			} else {
+				print(" / regular release => CONT\n");
+				return CONT;
+			}
+		}
 	}
-	return true;
+	return CONT;
+}
+
+void scan_a(void) {
+	if(!a_hash && a_pressed && timer_elapsed(a_timer) >= TAPPING_TERM) {
+		xprintf("scan found a has hold time, registering DE_HASH, a_hash: %d, a_pressed: %d, a_masking_code: %d\n", a_hash, a_pressed, a_masking_code);
+		register_code(DE_HASH);
+		a_hash = true;
+	}
+}
+
+bool process_oe(uint16_t keycode, keyrecord_t *record) {
+	uint16_t elapsed = timer_elapsed(oe_timer);
+	if(keycode == CS_OE) {
+		if(record->event.pressed) {
+			xprintf("pressed CS_OE, oe_hash: %d, oe_pressed: %d, oe_masking_code: %d\n\t", oe_hash, oe_pressed, oe_masking_code);
+			if(a_hash) { // be a normal key in case a is mod
+				print(" / but a is hash already, registering DE_OE => STOP\n");
+				register_code(DE_OE);
+				return STOP;
+			}
+			// no other mod-hold yet
+			print(" / and saved timer => STOP\n");
+			oe_timer = timer_read();
+			oe_pressed = true;
+			return STOP;
+		} else { // released
+			xprintf("release CS_OE, oe_hash: %d, oe_pressed: %d, oe_masking_code: %d\n\t", oe_hash, oe_pressed, oe_masking_code);
+			if(a_hash) { // be a normal key in case a is mod
+				print(" / but a is hash, unregistering DE_OE => STOP\n");
+				unregister_code(DE_OE);
+				return STOP;
+			}
+			if(oe_hash) {
+				print(" / and unregister DE_HASH");
+				unregister_code(DE_HASH);
+				oe_hash = false;
+			}
+			if(elapsed < TAPPING_TERM) {
+				print(" / and tap DE_OE");
+				register_code(DE_OE);
+				unregister_code(DE_OE);
+			}
+			print(" / and unpress => STOP\n");
+			oe_pressed = false;
+			return STOP;
+		}
+	} else {
+		if(record->event.pressed) {
+			xprintf("pressed %d, oe_hash: %d, oe_pressed: %d, oe_masking_code: %d\n\t", keycode, oe_hash, oe_pressed, oe_masking_code);
+			if(oe_pressed && !oe_masking_code && elapsed >= TAPPING_TERM) {
+				print(" / and registering DE_HASH => CONT\n");
+				oe_hash = true;
+				register_code(DE_HASH);
+				return CONT;
+			} else if(oe_pressed && oe_masking_code == 0) {
+				print(" / and masking key => STOP\n");
+				oe_masking_code = keycode;
+				return STOP;
+			} else if(oe_pressed && oe_masking_code != keycode) {
+				print(" / and 2nd tap after mask, registering DE_HASH and masked => CONT\n");
+				register_code(DE_HASH);
+				oe_hash = true;
+				register_code(oe_masking_code);
+				oe_masking_code = 0;
+			} else {
+				print(" / is regular press\n");
+				return CONT;
+			}
+		} else { // released
+			xprintf("released %d, oe_hash: %d, oe_pressed: %d, oe_masking_code: %d\n\t", keycode, oe_hash, oe_pressed, oe_masking_code);
+			if(oe_pressed && oe_masking_code == 0 && elapsed >= TAPPING_TERM) {
+				print(" / had hold while tapping ... confused => CONT\n");
+				register_code(DE_HASH);
+				oe_hash = true;
+				return CONT;
+			} else if(oe_pressed && oe_masking_code == keycode) {
+				print(" / released masked key, pressing DE_HASH and key => CONT\n");
+				register_code(DE_HASH);
+				register_code(keycode);
+				oe_masking_code = 0;
+				return CONT;
+			} else if(!oe_pressed && oe_masking_code != 0) {
+				print(" / unmasking and => CONT\n");
+				register_code(keycode);
+				return CONT;
+			} else {
+				print(" / regular release => CONT\n");
+				return CONT;
+			}
+		}
+	}
+	return CONT;
+}
+
+void scan_oe(void) {
+	if(!oe_hash && oe_pressed && timer_elapsed(oe_timer) >= TAPPING_TERM) {
+		xprintf("scan found a has hold time, registering DE_HASH, oe_hash: %d, oe_pressed: %d, oe_masking_code: %d\n", oe_hash, oe_pressed, oe_masking_code);
+		register_code(DE_HASH);
+		oe_hash = true;
+	}
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+	if(process_a(keycode, record) == CONT) {
+		return process_oe(keycode, record);
+	} else {
+		return STOP;
+	}
 }
 
 void matrix_scan_user(void) {
-	if((a_pressed || oe_pressed) && !hash_registered && timer_elapsed(hash_timer) > TAPPING_TERM) {
-		print("matrixscan, registering DE_HASH\n");
-		hash_registered = true;
-		register_code(DE_HASH);
-	}
+	scan_a();
+	scan_oe();
 }
 
 /*void persistent_default_layer_set(uint16_t default_layer) {
