@@ -173,6 +173,7 @@ bool process_a(uint16_t keycode, keyrecord_t *record) {
 			} else if(a_pressed && a_masking_code == keycode) {
 				print(" / released masked key, pressing DE_HASH and key => CONT\n");
 				register_code(DE_HASH);
+				a_hash = true;
 				register_code(keycode);
 				a_masking_code = 0;
 				return CONT;
@@ -265,6 +266,7 @@ bool process_oe(uint16_t keycode, keyrecord_t *record) {
 			} else if(oe_pressed && oe_masking_code == keycode) {
 				print(" / released masked key, pressing DE_HASH and key => CONT\n");
 				register_code(DE_HASH);
+				oe_hash = true;
 				register_code(keycode);
 				oe_masking_code = 0;
 				return CONT;
