@@ -1,4 +1,1 @@
-ifndef QUANTUM_DIR
-	TAP_DANCE_ENABLE = no
-	include ../../../../Makefile
-endif
+TAP_DANCE_ENABLE = yes
