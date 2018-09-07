@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define MATRIX_ROW_PINS { F6, F7, B1, B3, B2, B6 }
 //#define MATRIX_COL_PINS { D1, D4, C6, D7, E6, B4, B5 }
 // left
-#define MATRIX_ROW_PINS { B6, B2, B3, B1, F7, F6 }
+#define MATRIX_ROW_PINS { F6, F7, B1, B3, B2, B6 }
 #define MATRIX_COL_PINS { B5, B4, E6, D7, C6, D4, D1 }
 
 /* define if matrix has ghost */
@@ -65,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* key combination for command */
 #define IS_COMMAND() ( \
-    keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) \
+    keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RCTL)) \
 )
 
 /* ws2812 RGB LED */
@@ -82,12 +82,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* disable debug print */
 #ifndef NO_DEBUG
-#define NO_DEBUG
+//#define NO_DEBUG
 #endif
 
 /* disable print */
 #ifndef NO_PRINT
-#define NO_PRINT
+//#define NO_PRINT
 #endif
 
 /* disable action features */

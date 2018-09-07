@@ -28,8 +28,8 @@ volatile static bool hasregistered=false;
 	L30, L31, L32, L33, L34, L35, L36,                R36, R35, R34, R33, R32, R31, R30,\
 	               L43, L44,                                    R44, R43,          \
 	                         L45, L46,                R46, R45,                    \
-	                                   L52, L54, R54, R52,                              \
-	                                   L51, L53, R53, R51                               \
+	                                   L55, L56, R56, R55,                         \
+	                                   L53, L54, R54, R53                         \
 	) \
 	{ \
 		{ L00,   L01,   L02,    L03,   L04,   L05,   L06 }, \
@@ -37,14 +37,14 @@ volatile static bool hasregistered=false;
 		{ L20,   L21,   L22,    L23,   L24,   L25,   L26 }, \
 		{ L30,   L31,   L32,    L33,   L34,   L35,   L36 }, \
 		{ KC_NO, KC_NO, KC_NO,  L43,   L44,   L45,   L46 }, \
-		{ KC_NO, L51,   L52,    L53,   L54,   KC_NO, KC_NO }, \
+		{ KC_NO, KC_NO, KC_NO,  L53,   L54,   L55,   L56 }, \
 \
 		{ R06,   R05,   R04,   R03,   R02,   R01,   R00 }, \
 		{ R16,   R15,   R14,   R13,   R12,   R11,   R10 }, \
 		{ R26,   R25,   R24,   R23,   R22,   R21,   R20 }, \
 		{ R36,   R35,   R34,   R33,   R32,   R31,   R30 }, \
 		{ R46,   R45,   R44,   R43,   KC_NO, KC_NO, KC_NO }, \
-		{ KC_NO, KC_NO, R54,   R53,   R52,   R51,   KC_NO }, \
+		{ R56, R55, R54, R53,   KC_NO, KC_NO, KC_NO }, \
 	}
 
 #endif
