@@ -32,8 +32,8 @@ extern keymap_config_t keymap_config;
 enum {
   TD_Z = 0,
   TD_SLSH,
-  TD_O,
-  TD_W
+  TD_I,
+  TD_E
 };
 bool shiftheld=false;
 void dance_z_finished(qk_tap_dance_state_t *state, void *user_data) {
@@ -87,44 +87,44 @@ void dance_slsh_reset(qk_tap_dance_state_t *state, void *user_data) {
 	}
 }
 
-void dance_o_finished(qk_tap_dance_state_t *state, void *user_data) {
+void dance_e_finished(qk_tap_dance_state_t *state, void *user_data) {
 	if(state->count == 1) {
-		register_code(KC_O);
+		register_code(KC_E);
 	} else {
 		register_code(KC_ESC);
 		unregister_code(KC_ESC);
 	}
 }
-void dance_o_reset(qk_tap_dance_state_t *state, void *user_data) {
+void dance_e_reset(qk_tap_dance_state_t *state, void *user_data) {
 	if(state->count == 1) {
-		unregister_code(KC_O);
+		unregister_code(KC_E);
 	}
 }
-void dance_w_finished(qk_tap_dance_state_t *state, void *user_data) {
+void dance_i_finished(qk_tap_dance_state_t *state, void *user_data) {
 	if(state->count == 1) {
-		register_code(KC_W);
+		register_code(KC_I);
 	} else {
 		register_code(KC_ESC);
 		unregister_code(KC_ESC);
 	}
 }
-void dance_w_reset(qk_tap_dance_state_t *state, void *user_data) {
+void dance_i_reset(qk_tap_dance_state_t *state, void *user_data) {
 	if(state->count == 1) {
-		unregister_code(KC_W);
+		unregister_code(KC_I);
 	}
 }
 
 qk_tap_dance_action_t tap_dance_actions[] = {
-	[TD_Z] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, dance_z_finished, dance_z_reset, 100),
-	[TD_SLSH] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, dance_slsh_finished, dance_slsh_reset, 100),
-	[TD_O] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, dance_o_finished, dance_o_reset, 100),
-	[TD_W] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, dance_w_finished, dance_w_reset, 100)
+	[TD_Z] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, dance_z_finished, dance_z_reset, 92),
+	[TD_SLSH] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, dance_slsh_finished, dance_slsh_reset, 92),
+	[TD_E] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, dance_e_finished, dance_e_reset, 92),
+	[TD_I] = ACTION_TAP_DANCE_FN_ADVANCED_TIME(NULL, dance_i_finished, dance_i_reset, 92)
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [BASE] = LAYOUT( \
 	LT(FX, KC_TILD),  KC_1,    KC_2,     KC_3,     KC_4, KC_5,   KC_6,                        KC_7,    KC_8,   KC_9,    KC_0,     KC_MINS,     DE_ACUT,       LT(FX, KC_PAUSE), \
-	       KC_PSCR,   KC_ESC,  KC_Q,     TD(TD_W), KC_E, KC_R,   KC_T,                        KC_Y,    KC_U,   KC_I,    TD(TD_O), KC_P,        DE_UE,                DE_PLUS, \
+	       KC_PSCR,   KC_ESC,  KC_Q,     KC_W,     KC_E, KC_R,   KC_T,                        KC_Y,    KC_U,   TD(TD_I),    KC_O, KC_P,        DE_UE,                DE_PLUS, \
 	       KC_UP,     KC_LSFT, NB_A,     NB_S,     NB_D, NB_F,   KC_G,                        KC_H,    NB_J,   NB_K,    NB_L,     NB_OE,       NB_AE,                DE_HASH, \
 	       KC_DOWN,   DE_HASH, TD(TD_Z), KC_X,     KC_C, KC_V,   KC_B,                        KC_N,    KC_M,   KC_COMM, KC_DOT,   TD(TD_SLSH), KC_RSHIFT,            KC_SLCK, \
 	                                     KC_LEFT,  KC_RIGHT,                                                   KC_PGUP, KC_PGDOWN,                  \
